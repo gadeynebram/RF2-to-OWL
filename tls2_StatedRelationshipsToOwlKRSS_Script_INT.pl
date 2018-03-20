@@ -103,6 +103,7 @@ $nevergrouped{"411116001"} = "T";    # has-dose-form is never grouped
 $rightid{"363701004"}      =  "127489000";    # direct-substance o has-active-ingredient -> direct-substance
 
 $coreModuleId = "900000000000207008";
+@altModules = ("11000172109"); #11000172109 be extensie
 # $metadataModuleId = "900000000000012004"; # when reading in concepts, can exclude metadata module concepts
 $conceptDefinedId = "900000000000073002";
 $FSNId = "900000000000003001";
@@ -110,6 +111,9 @@ $DescId =  "900000000000013009";
 # Setting of terms to preferred vs synonym vs not acceptable is according to Language Refset ID
 $LanguageRefsetId = "900000000000509007"; # US English
 # $LanguageRefsetId = "900000000000508004"; # GB English
+@altLangRefSetId = ("31000172101"); #31000172101 = be_nl
+$baseLangSuffix = "us";
+$extLangSuffix = "be";
 
 $PreferredTermId = "900000000000548007";
 $AcceptableTermId = "900000000000549004";
@@ -266,7 +270,7 @@ while (<LANG>) {
 	s/\012//g;    # remove CR and LF characters
 	@values = split( '\t', $_ );    # input file is tab delimited
 	   # Filter out the header/blank/inactive lines, and keep only core module rows for refset $LanguageRefsetId
-	if ( $values[0] && ( $values[2] eq "1") && ( $values[3] eq $coreModuleId ) && ($values[4] eq $LanguageRefsetId ) )
+	if ( $values[0] && ( $values[2] eq "1") && ( $values[3] eq $coreModuleId or $values[3] ~~ @altModules ) && ($values[4] eq $LanguageRefsetId or $values[4] ~~ @altLangRefSetId  ) )
 	{
         $acceptability{ $values[5] } = $values[6];
 	}
@@ -296,13 +300,19 @@ while (<DESCRIPTIONS>) {
                  if ($acceptability{ $values[0] } eq $PreferredTermId ) { # if is the preferred term
                      $prefTerm { $values[4] } = &xmlify($values[7]);
 		         } elsif ( $acceptability{ $values[0] } eq $AcceptableTermId ) { # if it is acceptable
-		             if ($desc{ $values[4] }) {
-                         push @{ $desc{ $values[4] } },  &xmlify($values[7]); # push onto list of synonyms for this concept
+		             #if(not($desc{$values[4]})){
+					 #	 $desc{ $values[4] } = [];
+					 #}
+					 if ($desc{ $values[4] }{$values[5]}) {
+                         push @{ $desc{ $values[4] }{$values[5]} },  &xmlify($values[7]); # push onto list of synonyms for this concept
                      } else {
-                         $desc{ $values[4] } = [ &xmlify($values[7]) ];
+                         $desc{ $values[4] }{$values[5]} = [ &xmlify($values[7]) ];
                      }
 		         }
 		      }
+			  # else{
+			  #  say "[INFO] no acceptability found for : Description " . $values[4] . ",". $values[5];
+			  #}
 		   }
 	}
 }
@@ -631,9 +641,12 @@ sub printconceptdefowl {
 	say OUTF "   <rdfs:label xml:lang=\"en\">", $fsn{$c1}, "</rdfs:label>";
 	if ($prefTerm{$c1}) { say OUTF "    <sctp:en-us.preferred xml:lang=\"en\">", $prefTerm{$c1}, "</sctp:en-us.preferred>"; }
 	if ($desc{$c1}) {
-	   foreach $descrip ( @{ $desc{$c1} }) {
-	      say OUTF "    <sctp:en-us.synonym xml:lang=\"en\">", $descrip, "</sctp:en-us.synonym>";
-	   }
+		foreach $langCode ( keys %{$desc{$c1}} ){
+			foreach $descrip ( @{ $desc{$c1}{$langCode} }) {
+				my $locale = $langCode."-".($langCode eq "en"?$baseLangSuffix:$extLangSuffix);
+				say OUTF "    <sctp:".$locale.".synonym xml:lang=\"",$langCode,"\">", $descrip, "</sctp:".$locale.".synonym>";
+			}
+		}
 	}
 	if ($textDefs{$c1}) { say OUTF "    <sctf:TextDefinition.term xml:lang=\"en\">", $textDefs{$c1}, "</sctf:TextDefinition.term>"; }
 	
