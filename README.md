@@ -1,10 +1,14 @@
-# RF2-to-OWL
+# RF2-to-OWL (for be extension)
 
-This is a perl script to convert an International Edition RF2 package to OWL XML/RDF format. It has previously been distributed within the International Edition of SNOMED CT, but is now being made available under an Apache v2 license with the SNOMED International GitHub repositories.
-
-It has currently been tested by SNOMED International with the International Edition of SNOMED CT, and cannot be guaranteed to work with other editions or extensions of SNOMED CT.
+This is a clone of the original [IHTSDO/RF2-to-OWL](https://github.com/IHTSDO/RF2-to-OWL) repository in an effort to generate an OWL version of SNOMED-CT with the belgian extension files.
 
 ## Running the script
+
+- Extract the Snapshot folder from the original 2018 v1.0 international version of snomed ct.
+- Extract the Snapshot folder from the Belgian Extension.
+- Append the contents of these files from the Belgian extension to the international version, ommiting the headers.
+  - exportbe\Snapshot\Refset\Language\der2_cRefset_* to export\Snapshot\Refset\Language\der2_cRefset...
+  - exportbe\Snapshot\Terminology\sct2_Description_* to export\Snapshot\Terminology\sct2_Description_*
 
 Run the script as `perl <scriptfilename> <arg0> <arg1>` where `<scriptfilename>` is the name of the file containing this script `<arg0>` can be KRSS, OWL, or OWLF:
 
@@ -12,7 +16,7 @@ Run the script as `perl <scriptfilename> <arg0> <arg1>` where `<scriptfilename>`
 - **OWL**: This produces the OWL XML/RDF format.
 - **OWLF**: This produces the OWL functional syntax, parsable by the OWL API 3.4.2
 
-`<arg1>` is the directory containing the RF2 Snapshot subdirectories.
+`<arg1>` is the directory containing the RF2 Snapshot subdirectories of the international version.
 
 If the current directory is RF2/Snapshot, then just use dot (".") to designate the current directory, as in the following example:
 
