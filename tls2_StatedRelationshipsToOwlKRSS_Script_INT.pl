@@ -111,7 +111,7 @@ $DescId =  "900000000000013009";
 # Setting of terms to preferred vs synonym vs not acceptable is according to Language Refset ID
 $LanguageRefsetId = "900000000000509007"; # US English
 # $LanguageRefsetId = "900000000000508004"; # GB English
-@altLangRefSetId = ("31000172101"); #31000172101 = be_nl
+@altLangRefSetId = ("31000172101","21000172104"); #31000172101 = be_nl, 21000172104=be_fr
 $baseLangSuffix = "us";
 $extLangSuffix = "be";
 
