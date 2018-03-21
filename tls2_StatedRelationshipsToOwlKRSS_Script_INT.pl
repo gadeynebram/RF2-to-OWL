@@ -601,9 +601,12 @@ sub printroledefowlf {    # print object properties of OWL functional syntax
 	say OUTF "AnnotationAssertion(rdfs:label :", $r1, " \"",  $fsn{$r1}, "\")";
 	if ($prefTerm{$r1}) { say OUTF "AnnotationAssertion(sctp:en-us.preferred :", $r1, " \"", $prefTerm{$r1}, "\")"; }
 	if ($desc{$r1}) {
-	   foreach $descrip ( @{ $desc{$r1} }) {
-	      say OUTF "AnnotationAssertion(sctp:en-us.synonym :", $r1, " \"", $descrip, "\")";
-	   }
+		foreach $langCode ( keys %{$desc{$r1}} ){
+			foreach $descrip ( @{ $desc{$r1}{$langCode} }) {
+				my $locale = $langCode."-".($langCode eq "en"?$baseLangSuffix:$extLangSuffix);
+				say OUTF "AnnotationAssertion(sctp:".$locale.".synonym :", $r1, " \"", $descrip, "\")";
+			}
+		}
 	}
 	unless ( $roles{$r1}{'parentrole'} eq "" ) {   # unless there is no parent role specified
 		say OUTF "SubObjectPropertyOf(:", $r1, " :", $roles{$r1}{'parentrole'}, ")";
@@ -695,9 +698,12 @@ sub printconceptdefowlf {
 #	say OUTF "AnnotationAssertion(owl:versionInfo :", $c1, " \"http://snomed.info/sct/900000000000207008/version/20150131/id/", $c1, "\")";
     if ($prefTerm{$c1}) { say OUTF "AnnotationAssertion(sctp:en-us.preferred :", $c1, " \"", $prefTerm{$c1}, "\")"; }
 	if ($desc{$c1}) {
-	   foreach $descrip ( @{ $desc{$c1} }) {
-	      say OUTF "AnnotationAssertion(sctp:en-us.synonym :", $c1, " \"", $descrip, "\")";
-	   }
+		foreach $langCode ( keys %{$desc{$c1}} ){
+			foreach $descrip ( @{ $desc{$c1}{$langCode} }) {
+				my $locale = $langCode."-".($langCode eq "en"?$baseLangSuffix:$extLangSuffix);
+				say OUTF "AnnotationAssertion(sctp:".$locale.".synonym :", $c1, " \"", $descrip, "\")";
+			}
+		}
 	}
 	if ($textDefs{$c1}) { say OUTF "AnnotationAssertion(sctf:TextDefinition.term :", $c1, " \"", $textDefs{$c1}, "\")"; }
 
